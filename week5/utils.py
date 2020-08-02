@@ -2,6 +2,7 @@ import nltk
 import pickle
 import re
 import numpy as np
+import pandas as pd
 
 nltk.download('stopwords')
 from nltk.corpus import stopwords
@@ -12,7 +13,7 @@ RESOURCE_PATH = {
     'TAG_CLASSIFIER': 'tag_classifier.pkl',
     'TFIDF_VECTORIZER': 'tfidf_vectorizer.pkl',
     'THREAD_EMBEDDINGS_FOLDER': 'thread_embeddings_by_tags',
-    'WORD_EMBEDDINGS': 'data/word_embeddings.tsv',
+    'WORD_EMBEDDINGS': 'Starspace_embeddings.tsv',
 }
 
 
@@ -38,36 +39,34 @@ def load_embeddings(embeddings_path):
       embeddings - dict mapping words to vectors;
       embeddings_dim - dimension of the vectors.
     """
-
-    # Hint: you have already implemented a similar routine in the 3rd assignment.
-    # Note that here you also need to know the dimension of the loaded embeddings.
-    # When you load the embeddings, use numpy.float32 type as dtype
-
-    ########################
-    #### YOUR CODE HERE ####
-    ########################
-
-    # remove this when you're done
-    raise NotImplementedError(
-        "Open utils.py and fill with your code. In case of Google Colab, download"
-        "(https://github.com/hse-aml/natural-language-processing/blob/master/project/utils.py), "
-        "edit locally and upload using '> arrow on the left edge' -> Files -> UPLOAD")
+    '''embeddings_df = pd.read_csv(embeddings_path,sep='\t')
+    embedding_keys = embeddings_df.values[:,0]
+    embedding_values = embeddings_df.values[:,1:].astype('float32')
+    embeddings  = {embedding_keys[i]:embedding_values[i] for i in range(embeddings_df.shape[0])}
+    embeddings_dim = embeddings[list(embeddings.keys())[0]].shape
+    return embeddings,embeddings_dim'''
+    embeddings = {}
+    dim=0
+    for line in open(embeddings_path):
+        word,*vec = line.strip().split()
+        dim = len(vec)
+        embeddings[word] = np.array(vec,dtype=np.float32)
+    return embeddings,dim
 
 
 def question_to_vec(question, embeddings, dim):
     """Transforms a string to an embedding by averaging word embeddings."""
 
-    # Hint: you have already implemented exactly this function in the 3rd assignment.
-
-    ########################
-    #### YOUR CODE HERE ####
-    ########################
-
-    # remove this when you're done
-    raise NotImplementedError(
-        "Open utils.py and fill with your code. In case of Google Colab, download"
-        "(https://github.com/hse-aml/natural-language-processing/blob/master/project/utils.py), "
-        "edit locally and upload using '> arrow on the left edge' -> Files -> UPLOAD")
+    question = list(question.split())
+    result = np.zeros((dim))
+    l = 0
+    for word in question:
+      if word in embeddings:
+        l += 1
+        result += embeddings[word]
+    if l>0:
+      result = result/l
+    return result
 
 
 def unpickle_file(filename):
