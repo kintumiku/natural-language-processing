@@ -54,6 +54,7 @@ def setup_project():
     setup_common()
     download_github_code("week5/dialogue_manager.py")
     download_github_code("week5/utils.py")
+    download_github_code("week5/Starspace_embeddings.tsv")
     setup_starspace()
 
 
